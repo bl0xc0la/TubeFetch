@@ -1,36 +1,31 @@
 const express = require("express");
+const cors = require("cors");
 const { exec } = require("child_process");
-const path = require("path");
-const fs = require("fs");
 
 const app = express();
 
-app.use(express.static("public"));
+app.use(cors());
 
 app.get("/download", (req, res) => {
-    const videoURL = req.query.url;
+    const url = req.query.url;
 
-    if (!videoURL) {
-        return res.status(400).send("No URL provided");
+    if (!url) {
+        return res.status(400).send("Missing URL");
     }
 
-    const fileName = `video_${Date.now()}.mp4`;
-    const outputPath = path.join(__dirname, "downloads", fileName);
+    const command = `yt-dlp -g "${url}"`;
 
-    const command = `yt-dlp -f mp4 -o "${outputPath}" "${videoURL}"`;
-
-    exec(command, (error) => {
-        if (error) {
-            console.error(error);
-            return res.status(500).send("Download failed");
+    exec(command, (err, stdout) => {
+        if (err) {
+            return res.status(500).send("Failed");
         }
 
-        res.download(outputPath, () => {
-            fs.unlinkSync(outputPath);
+        res.json({
+            download: stdout.trim()
         });
     });
 });
 
 app.listen(3000, () => {
-    console.log("Server running on http://localhost:3000");
+    console.log("Running");
 });
