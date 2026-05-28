@@ -6,6 +6,10 @@ const app = express();
 
 app.use(cors());
 
+app.get("/", (req, res) => {
+    res.send("YouTube Downloader API Running");
+});
+
 app.get("/download", (req, res) => {
     const url = req.query.url;
 
@@ -27,5 +31,5 @@ app.get("/download", (req, res) => {
 });
 
 app.listen(3000, () => {
-    console.log("Running");
+    console.log("Running on port 3000");
 });
